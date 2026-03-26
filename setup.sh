@@ -5,10 +5,10 @@ source /venv/main/bin/activate
 WORKSPACE=${WORKSPACE:-/workspace}
 COMFYUI_DIR="${WORKSPACE}/ComfyUI"
 
-echo "=== ComfyUI запускает ( x-mode) ==="
+echo "=== ComfyUI starting (x-mode) ==="
 
-APT_PACKAGES=()           # если нужно — добавь sudo apt install ...
-PIP_PACKAGES=()           # глобальные pip пакеты, если сверх requirements
+APT_PACKAGES=()
+PIP_PACKAGES=()
 
 NODES=(
     "https://github.com/kijai/ComfyUI-WanVideoWrapper"
@@ -25,7 +25,6 @@ NODES=(
     "https://github.com/teskor-hub/comfyui-teskors-utils"
 )
 
-# ЗАГРУЗКА ФАЙЛОВ НУЖНЫХ
 CLIP_MODELS=(
     "https://huggingface.co/wdsfdsdf/OFMHUB/resolve/main/klip_vision.safetensors"
 )
@@ -65,8 +64,8 @@ CLIP_VISION=(
 
 DEFFUSION=(
 "https://huggingface.co/wdsfdsdf/OFMHUB/resolve/main/WanModel.safetensors"
-
 )
+
 ### ─────────────────────────────────────────────
 ### DO NOT EDIT BELOW UNLESS YOU KNOW WHAT YOU ARE DOING
 ### ─────────────────────────────────────────────
@@ -74,9 +73,7 @@ DEFFUSION=(
 function provisioning_start() {
     echo ""
     echo "##############################################"
-    echo "# ебашим жоска и мрачно                      #"
     echo "# gazik X-MODE setup 2025-2026               #"
-    echo "# бабки бабки                                #"
     echo "##############################################"
     echo ""
 
@@ -92,18 +89,18 @@ function provisioning_start() {
     provisioning_get_files "${COMFYUI_DIR}/models/vae"                "${VAE_MODELS[@]}"
     provisioning_get_files "${COMFYUI_DIR}/models/diffusion_models"   "${DIFFUSION_MODELS[@]}"
 
-    provisioning_get_files "${COMFYUI_DIR}/models/detection"   "${DETECTION_MODELS[@]}"
-    provisioning_get_files "${COMFYUI_DIR}/models/loras"   "${LORAS[@]}"
-    provisioning_get_files "${COMFYUI_DIR}/models/diffusion_models"     "${DEFFUSION[@]}"
+    provisioning_get_files "${COMFYUI_DIR}/models/detection"          "${DETECTION_MODELS[@]}"
+    provisioning_get_files "${COMFYUI_DIR}/models/loras"              "${LORAS[@]}"
+    provisioning_get_files "${COMFYUI_DIR}/models/diffusion_models"   "${DEFFUSION[@]}"
 
     echo ""
-    echo "Газик настроил → Starting ComfyUI..."
+    echo "Setup complete → Starting ComfyUI..."
     echo ""
 }
 
 function provisioning_clone_comfyui() {
     if [[ ! -d "${COMFYUI_DIR}" ]]; then
-        echo "Газик клонирует ComfyUI..."
+        echo "Cloning ComfyUI..."
         git clone https://github.com/comfyanonymous/ComfyUI.git "${COMFYUI_DIR}"
     fi
     cd "${COMFYUI_DIR}"
@@ -111,21 +108,21 @@ function provisioning_clone_comfyui() {
 
 function provisioning_install_base_reqs() {
     if [[ -f requirements.txt ]]; then
-        echo "Газик установливает base requirements..."
+        echo "Installing base requirements..."
         pip install --no-cache-dir -r requirements.txt
     fi
 }
 
 function provisioning_get_apt_packages() {
     if [[ ${#APT_PACKAGES[@]} -gt 0 ]]; then
-        echo "Газик устанавливает apt packages..."
+        echo "Installing apt packages..."
         sudo apt update && sudo apt install -y "${APT_PACKAGES[@]}"
     fi
 }
 
 function provisioning_get_pip_packages() {
     if [[ ${#PIP_PACKAGES[@]} -gt 0 ]]; then
-        echo "Газик устанавливает extra pip packages..."
+        echo "Installing extra pip packages..."
         pip install --no-cache-dir "${PIP_PACKAGES[@]}"
     fi
 }
@@ -161,7 +158,7 @@ function provisioning_get_files() {
     local files=("$@")
 
     mkdir -p "$dir"
-    echo "Скачивание ${#files[@]} file(s) → $dir..."
+    echo "Downloading ${#files[@]} file(s) → $dir..."
 
     for url in "${files[@]}"; do
         echo "→ $url"
@@ -177,12 +174,10 @@ function provisioning_get_files() {
     done
 }
 
-# Запуск provisioning если не отключен
 if [[ ! -f /.noprovisioning ]]; then
     provisioning_start
 fi
 
-# Запуск ComfyUI
-echo "=== Газик запускает ComfyUI ==="
+echo "=== Starting ComfyUI ==="
 cd "${COMFYUI_DIR}"
 python main.py --listen 0.0.0.0 --port 8188
